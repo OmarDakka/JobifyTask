@@ -4,8 +4,9 @@ import ProductPage from "./views/ProductPage";
 import { graphqlClient } from "./graphql";
 import { ApolloProvider } from "@apollo/react-hooks";
 import { useState } from "react";
+import Navbar from "./components/Navbar";
 
-let darkClass = "dark";
+let darkClass = "";
 
 function App() {
 	//create your forceUpdate hook
@@ -27,11 +28,14 @@ function App() {
 	};
 
 	return (
-		<div className={darkClass} onClick={toggle}>
+		<div className={darkClass}>
+			<Navbar />
 			<ApolloProvider client={graphqlClient}>
-				<Router>
-					<ProductPage path="/products" />
-				</Router>
+				<div className="mt-20">
+					<Router>
+						<ProductPage path="/products" />
+					</Router>
+				</div>
 			</ApolloProvider>
 		</div>
 	);

@@ -1,6 +1,7 @@
 // const client = ...
 import { gql } from "apollo-boost";
 import { useQuery } from "react-apollo";
+import Product from "../components/product";
 
 const QUERY_USERS = gql`
 	query {
@@ -23,10 +24,9 @@ const ProductPage = () => {
 
 	if (loading) return <p>Loading...</p>;
 
-	return data.products.map(({ id, title }) => (
-		<div key={id} className="dark:bg-black dark:text-white border-2 border-purple-600 p-2 m-2 border-opacity-10">
-			<p>{title}</p>
-		</div>
+	return data.products.map((product) => (
+		<Product key={product.id} product={product} />
 	));
 };
+
 export default ProductPage;
