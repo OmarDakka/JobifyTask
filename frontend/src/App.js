@@ -1,6 +1,7 @@
 import "./App.css";
 import { Router } from "@reach/router";
 import ProductPage from "./views/ProductPage";
+import ProductForm from "./views/ProductForm";
 import { graphqlClient } from "./graphql";
 import { ApolloProvider } from "@apollo/react-hooks";
 import { useState } from "react";
@@ -31,9 +32,10 @@ function App() {
 		<div className={darkClass}>
 			<Navbar />
 			<ApolloProvider client={graphqlClient}>
-				<div className="mt-20">
+				<div className="mt-24 mb-16">
 					<Router>
 						<ProductPage path="/products" />
+						<ProductForm path="/create"/>
 					</Router>
 				</div>
 			</ApolloProvider>
