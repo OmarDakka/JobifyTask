@@ -24,7 +24,7 @@ const ProductPage = () => {
 	if (loading) return <p>Loading...</p>;
 
 	return data.products.map(({ id, title }) => (
-		<div key={id}>
+		<div key={id} className="dark:bg-black dark:text-white border-2 border-purple-600 p-2 m-2 border-opacity-10">
 			<p>{title}</p>
 		</div>
 	));
