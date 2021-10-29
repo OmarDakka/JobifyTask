@@ -3,6 +3,7 @@ from graphene_django import DjangoObjectType, fields
 from .models import Product, Category
 from django.db.models import Q
 
+
 class CategoryType(DjangoObjectType):
     class Meta:
         model = Category
@@ -25,8 +26,10 @@ class ProductType(DjangoObjectType):
 
 
 class Query(graphene.ObjectType):
-    categories = graphene.List(CategoryType, id=graphene.Int(), title=graphene.String())
-    products = graphene.List(ProductType, id=graphene.Int(), search=graphene.String(),  min=graphene.Float(),  max=graphene.Float(), orderBy=graphene.String())
+    categories = graphene.List(
+        CategoryType, id=graphene.Int(), title=graphene.String())
+    products = graphene.List(ProductType, id=graphene.Int(), search=graphene.String(
+    ),  min=graphene.Float(),  max=graphene.Float(), orderBy=graphene.String(), category=graphene.Int())
 
     def resolve_products(root, info, **kwargs):
         id = kwargs.get('id')
@@ -39,7 +42,8 @@ class Query(graphene.ObjectType):
         search = kwargs.get('search')
 
         if search is not None:
-            query = query.filter(Q(title__icontains=search) | Q(description__icontains=search))
+            query = query.filter(Q(title__icontains=search)
+                                 | Q(description__icontains=search))
 
         min = kwargs.get('min')
 
@@ -59,6 +63,14 @@ class Query(graphene.ObjectType):
             else:
                 query = query.order_by('created_at')
 
+        category = kwargs.get('category')
+
+        if category is not None:
+            if category == 0:
+                pass
+            else :
+                query = query.filter(category = category)
+            
         return query
 
     def resolve_categories(root, info, **kwargs):
@@ -74,6 +86,7 @@ class Query(graphene.ObjectType):
 
         return Category.objects.all()
 
+
 class UpdateCategory(graphene.Mutation):
     class Arguments:
         title = graphene.String(required=True)
@@ -82,12 +95,13 @@ class UpdateCategory(graphene.Mutation):
     category = graphene.Field(CategoryType)
 
     @classmethod
-    def mutate(cls,root,info,title,id):
+    def mutate(cls, root, info, title, id):
         category = Category.objects.get(pk=id)
         category.title = title
         category.save()
 
         return UpdateCategory(category=category)
+
 
 class CreateCategory(graphene.Mutation):
     class Arguments:
@@ -96,12 +110,13 @@ class CreateCategory(graphene.Mutation):
     category = graphene.Field(CategoryType)
 
     @classmethod
-    def mutate(cls,root,info,title):
+    def mutate(cls, root, info, title):
         category = Category()
         category.title = title
         category.save()
 
         return CreateCategory(category=category)
+
 
 class ProductInput(graphene.InputObjectType):
     title = graphene.String()
@@ -111,14 +126,15 @@ class ProductInput(graphene.InputObjectType):
     image = graphene.String()
     available_quantity = graphene.Int()
 
+
 class CreateProduct(graphene.Mutation):
     class Arguments:
-        input = ProductInput(required = True)
+        input = ProductInput(required=True)
 
     product = graphene.Field(ProductType)
 
     @classmethod
-    def mutate(cls,root,info,input):
+    def mutate(cls, root, info, input):
         product = Product()
         product.title = input.title
         product.description = input.description
@@ -126,18 +142,19 @@ class CreateProduct(graphene.Mutation):
         product.image = input.image
         product.available_quantity = input.available_quantity
         product.save()
-        product.category.set(Category.objects.filter(pk=input.category))  
+        product.category.set(Category.objects.filter(pk=input.category))
         product.save()
         return CreateProduct(product=product)
 
+
 class UpdateProduct(graphene.Mutation):
     class Arguments:
-        input = ProductInput(required = True)
+        input = ProductInput(required=True)
 
     product = graphene.Field(ProductType)
 
     @classmethod
-    def mutate(cls,root,info,input,id):
+    def mutate(cls, root, info, input, id):
         product = Product.objects.get(pk=id)
         product.title = input.title
         product.description = input.description
@@ -145,9 +162,10 @@ class UpdateProduct(graphene.Mutation):
         product.image = input.image
         product.available_quantity = input.available_quantity
         product.save()
-        product.category.set(Category.objects.filter(pk=input.category))  
+        product.category.set(Category.objects.filter(pk=input.category))
         product.save()
         return UpdateProduct(product=product)
+
 
 class Mutation(graphene.ObjectType):
     update_category = UpdateCategory.Field()
@@ -156,4 +174,4 @@ class Mutation(graphene.ObjectType):
     update_product = UpdateProduct.Field()
 
 
-schema = graphene.Schema(query = Query, mutation=Mutation)
+schema = graphene.Schema(query=Query, mutation=Mutation)

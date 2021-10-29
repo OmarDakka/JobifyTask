@@ -9,8 +9,9 @@ const QUERY_PRODUCTS = gql`
 		$min: Float!
 		$max: Float!
 		$orderBy: String!
+		$category: Int
 	) {
-		products(search: $search, min: $min, max: $max, orderBy: $orderBy) {
+		products(search: $search, min: $min, max: $max, orderBy: $orderBy, category: $category) {
 			id
 			title
 			description
@@ -34,13 +35,13 @@ const GET_CATEGORIES = gql`
 `;
 
 let searchForm = {
-	category: "",
+	category:0,
 	search: "",
 	min: 0,
 	max: 99999999999999,
 	orderBy: "",
 };
-
+console.log(searchForm);
 const ProductPage = () => {
 	let [queryProducts, { called, data, loading }] = useLazyQuery(
 		QUERY_PRODUCTS,
@@ -50,6 +51,7 @@ const ProductPage = () => {
 				min: searchForm.min,
 				max: searchForm.max,
 				orderBy: searchForm.orderBy,
+				category: searchForm.category
 			},
 		}
 	);
@@ -57,6 +59,7 @@ const ProductPage = () => {
 	if (!called) {
 		queryProducts();
 	}
+
 
 	const categoriesResult = useQuery(GET_CATEGORIES);
 
@@ -70,6 +73,7 @@ const ProductPage = () => {
 			min: searchForm.min,
 			max: searchForm.max,
 			orderBy: searchForm.orderBy,
+			category: searchForm.category
 		});
 		
 		queryProducts({
@@ -77,6 +81,8 @@ const ProductPage = () => {
 			min: searchForm.min,
 			max: searchForm.max,
 			orderBy: searchForm.orderBy,
+			category: searchForm.category
+
 		});
 	};
 
@@ -92,7 +98,7 @@ const ProductPage = () => {
 						name="category"
 						defaultValue={searchForm.category}
 					>
-						<option value="">Category</option>
+						<option value="0">Category</option>
 						{categoriesResult &&
 							categoriesResult.data &&
 							categoriesResult.data.categories.map((c) => {
