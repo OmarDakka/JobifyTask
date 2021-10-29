@@ -1,8 +1,7 @@
 import graphene
 from graphene_django import DjangoObjectType, fields
 from .models import Product, Category
-
-
+from django.db.models import Q
 
 class CategoryType(DjangoObjectType):
     class Meta:
@@ -20,18 +19,59 @@ class ProductType(DjangoObjectType):
             'category',
             'price',
             'image',
-            'available_quantity'
+            'available_quantity',
+            'created_at'
         )
 
 
 class Query(graphene.ObjectType):
-    categories = graphene.List(CategoryType)
-    products = graphene.List(ProductType)
+    categories = graphene.List(CategoryType, id=graphene.Int(), title=graphene.String())
+    products = graphene.List(ProductType, id=graphene.Int(), search=graphene.String(),  min=graphene.Int(),  max=graphene.Int(), orderBy=graphene.String())
 
     def resolve_products(root, info, **kwargs):
-        return Product.objects.all()
+        id = kwargs.get('id')
+
+        if id is not None:
+            return Product.objects.filter(pk=id)
+
+        query = Product.objects.all()
+
+        search = kwargs.get('search')
+
+        if search is not None:
+            query = query.filter(Q(title__icontains=search) | Q(description__icontains=search))
+
+        min = kwargs.get('min')
+
+        if min is not None:
+            query = query.filter(price__gte=min)
+
+        max = kwargs.get('max')
+
+        if max is not None:
+            query = query.filter(price__lte=max)
+
+        orderBy = kwargs.get('orderBy')
+
+        if orderBy is not None:
+            if orderBy == "asc":
+                query = query.order_by('-created_at')
+            else:
+                query = query.order_by('created_at')
+
+        return query
 
     def resolve_categories(root, info, **kwargs):
+        id = kwargs.get('id')
+
+        if id is not None:
+            return Category.objects.filter(pk=id)
+
+        title = kwargs.get('title')
+
+        if title is not None:
+            return Category.objects.filter(title__icontains=title)
+
         return Category.objects.all()
 
 class UpdateCategory(graphene.Mutation):

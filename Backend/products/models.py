@@ -5,6 +5,7 @@ from django.db import models
 
 class Category(models.Model):
     title = models.CharField(blank=False, max_length=255)
+    created_at = models.DateTimeField(auto_now=True)
 
 
 class Product(models.Model):
@@ -15,3 +16,5 @@ class Product(models.Model):
     price = models.FloatField(blank=False)
     image = models.CharField(blank=False, max_length=255)
     available_quantity = models.IntegerField(blank=False)
+    created_at = models.DateTimeField(auto_now=True)
+

@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'products',
     'graphene_django',
     'corsheaders',
+    "django_filters",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
