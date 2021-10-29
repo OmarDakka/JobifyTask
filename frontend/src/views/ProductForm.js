@@ -56,6 +56,7 @@ const ProductForm = () => {
 
 	const submitForm = (e) => {
 		e.preventDefault();
+	
         createProduct({
 			variables: {
 				title: title.value,

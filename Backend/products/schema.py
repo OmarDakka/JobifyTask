@@ -26,7 +26,7 @@ class ProductType(DjangoObjectType):
 
 class Query(graphene.ObjectType):
     categories = graphene.List(CategoryType, id=graphene.Int(), title=graphene.String())
-    products = graphene.List(ProductType, id=graphene.Int(), search=graphene.String(),  min=graphene.Int(),  max=graphene.Int(), orderBy=graphene.String())
+    products = graphene.List(ProductType, id=graphene.Int(), search=graphene.String(),  min=graphene.Float(),  max=graphene.Float(), orderBy=graphene.String())
 
     def resolve_products(root, info, **kwargs):
         id = kwargs.get('id')

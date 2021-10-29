@@ -1,11 +1,16 @@
 // const client = ...
 import { gql } from "apollo-boost";
-import { useQuery } from "react-apollo";
+import { useQuery, useLazyQuery } from "react-apollo";
 import Product from "../components/product";
 
 const QUERY_PRODUCTS = gql`
-	query {
-		products {
+	query products(
+		$search: String!
+		$min: Float!
+		$max: Float!
+		$orderBy: String!
+	) {
+		products(search: $search, min: $min, max: $max, orderBy: $orderBy) {
 			id
 			title
 			description
@@ -28,25 +33,59 @@ const GET_CATEGORIES = gql`
 	}
 `;
 
-const ProductPage = () => {
-	const { data, loading } = useQuery(QUERY_PRODUCTS);
-	const categoriesResult = useQuery(GET_CATEGORIES);
-	let searchForm = {
-		category: "",
-		search: "",
-		min: 0,
-		max: 9999,
-		orderBy: "",
-	};
+let searchForm = {
+	category: "",
+	search: "",
+	min: 0,
+	max: 99999999999999,
+	orderBy: "",
+};
 
-	if (loading || categoriesResult.loading) return <p>Loading...</p>;
+const ProductPage = () => {
+	let [queryProducts, { called, data, loading }] = useLazyQuery(
+		QUERY_PRODUCTS,
+		{
+			variables: {
+				search: searchForm.search,
+				min: searchForm.min,
+				max: searchForm.max,
+				orderBy: searchForm.orderBy,
+			},
+		}
+	);
+
+	if (!called) {
+		queryProducts();
+	}
+
+	const categoriesResult = useQuery(GET_CATEGORIES);
+
+	const submit = (e) => {
+		e.preventDefault();
+
+		console.log({ searchForm });
+
+		queryProducts({
+			search: searchForm.search,
+			min: searchForm.min,
+			max: searchForm.max,
+			orderBy: searchForm.orderBy,
+		});
+		
+		queryProducts({
+			search: searchForm.search,
+			min: searchForm.min,
+			max: searchForm.max,
+			orderBy: searchForm.orderBy,
+		});
+	};
 
 	return (
 		<div className="container mx-auto">
 			<div className="mb-8">
-				<form className="flex space-x-4">
+				<form className="flex space-x-4" onSubmit={submit}>
 					<select
-						ref={(node) => (searchForm.category = node)}
+						ref={(node) => (searchForm.category = node?.value)}
 						className="rounded-sm p-2 ring-2 transition-all duration-200 ease-linear 
 						focus:ring-4 focus:outline-none focus:border-purple-300"
 						id="category"
@@ -54,17 +93,19 @@ const ProductPage = () => {
 						defaultValue={searchForm.category}
 					>
 						<option value="">Category</option>
-						{categoriesResult.data.categories.map((c) => {
-							return (
-								<option key={c.id} value={c.id}>
-									{c.title}
-								</option>
-							);
-						})}
+						{categoriesResult &&
+							categoriesResult.data &&
+							categoriesResult.data.categories.map((c) => {
+								return (
+									<option key={c.id} value={c.id}>
+										{c.title}
+									</option>
+								);
+							})}
 					</select>
 
 					<input
-						ref={(node) => (searchForm.search = node)}
+						ref={(node) => (searchForm.search = node?.value)}
 						className="rounded-sm p-2 ring-2 transition-all duration-200 ease-linear 
                     		focus:ring-4 focus:outline-none focus:border-purple-300"
 						type="text"
@@ -74,7 +115,7 @@ const ProductPage = () => {
 
 					<input
 						type="number"
-						ref={(node) => (searchForm.min = node)}
+						ref={(node) => (searchForm.min = node?.value)}
 						className="rounded-sm p-2 ring-2 transition-all duration-200 ease-linear 
                     		focus:ring-4 focus:outline-none focus:border-purple-300"
 						placeholder="Min Price"
@@ -83,7 +124,7 @@ const ProductPage = () => {
 
 					<input
 						type="number"
-						ref={(node) => (searchForm.max = node)}
+						ref={(node) => (searchForm.max = node?.value)}
 						className="rounded-sm p-2 ring-2 transition-all duration-200 ease-linear 
                     		focus:ring-4 focus:outline-none focus:border-purple-300"
 						placeholder="Max Price"
@@ -95,7 +136,7 @@ const ProductPage = () => {
                             focus:ring-4 focus:outline-none focus:border-purple-300"
 						id="category"
 						name="category"
-						ref={(node) => (searchForm.orderBy = node)}
+						ref={(node) => (searchForm.orderBy = node?.value)}
 						defaultValue={searchForm.orderBy}
 					>
 						<option disabled value="">
@@ -115,9 +156,11 @@ const ProductPage = () => {
 				</form>
 			</div>
 			<div className="grid gap-4 sm:gap-6 md:gap-8 lg:gap-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-				{data.products.map((product) => (
-					<Product key={product.id} product={product} />
-				))}
+				{data &&
+					data.products &&
+					data.products.map((product) => (
+						<Product key={product.id} product={product} />
+					))}
 			</div>
 		</div>
 	);
