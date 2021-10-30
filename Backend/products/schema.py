@@ -23,6 +23,7 @@ class ProductType(DjangoObjectType):
             'available_quantity',
             'created_at'
         )
+        image = graphene.String()
 
 
 class Query(graphene.ObjectType):

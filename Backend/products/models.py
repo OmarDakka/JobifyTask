@@ -14,7 +14,7 @@ class Product(models.Model):
     category = models.ManyToManyField(
         Category, related_name="product_category")
     price = models.FloatField(blank=False)
-    image = models.CharField(blank=False, max_length=255)
+    image = models.ImageField(default="default.png",blank= True)
     available_quantity = models.IntegerField(blank=False)
     created_at = models.DateTimeField(auto_now=True)
 

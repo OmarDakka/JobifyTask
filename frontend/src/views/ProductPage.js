@@ -17,6 +17,7 @@ const QUERY_PRODUCTS = gql`
 			description
 			price
 			availableQuantity
+			image
 			category {
 				id
 				title
