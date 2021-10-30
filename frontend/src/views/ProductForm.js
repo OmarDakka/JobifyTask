@@ -1,7 +1,7 @@
 import { gql } from "apollo-boost";
 import { useMutation, useQuery } from "react-apollo";
-
 import { navigate } from "@reach/router";
+import React, { useState } from "react";
 
 const GET_CATEGORIES = gql`
 	query {
@@ -48,66 +48,136 @@ const CREATE_PRODUCT = gql`
 `;
 
 const ProductForm = () => {
-	const { loading, data } = useQuery(GET_CATEGORIES);
+	const [title, setTitle] = useState("");
+	const [description, setDescription] = useState("");
+	const [price, setPrice] = useState(0);
+	const [availableQuantity, setAvailableQuantity] = useState(0);
+	const [image, setImage] = useState("");
+	const [category, setCategory] = useState(0);
+	const [titleError, setTitleError] = useState("");
+	const [descriptionError, setDescriptionError] = useState("");
+	const [availableQuantityError, setAvailableQuantityError] = useState("");
+	const [priceError, setPriceError] = useState("");
+	const [imageError, setImageError] = useState("");
+	const [categoryError, setCategoryError] = useState("");
 
-	let title, description, category, price, image, availableQuantity;
+	const handleTitle = (e) => {
+		setTitle(e.target.value);
+		if (e.target.value.length < 1) {
+			setTitleError("Title is required!");
+		} else if (e.target.value.length < 3) {
+			setTitleError("Title must be at least 3 characters or longer!");
+		} else setTitleError("");
+	};
+	const handleDescription = (e) => {
+		setDescription(e.target.value);
+		if (e.target.value.length < 1) {
+			setDescriptionError("Description is required!");
+		} else if (e.target.value.length < 15) {
+			setDescriptionError(
+				"Description must be at least 15 characters or longer!"
+			);
+		} else setDescriptionError("");
+	};
+	const handlePrice = (e) => {
+		setPrice(e.target.value);
+		if (e.target.value === 0) {
+			setPriceError("Price is required,nothing for free!");
+		} else if (e.target.value < 3) {
+			setPriceError("Price should be at least $3, you need profit!");
+		} else setPriceError("");
+	};
+	const handleCategory = (e) => {
+		setCategory(e.target.value);
+		if (e.target.value < 1) {
+			setCategoryError("Category is required!");
+		} else setCategoryError("");
+	};
+	const handleImage = (e) => {
+		setImage(e.target.value);
+		if (e.target.value.length < 1) {
+			setImageError("Image is required!");
+		} else setImageError("");
+	};
+	const handleAvailableQuantity = (e) => {
+		setAvailableQuantity(e.target.value);
+		if (e.target.value < 1) {
+			setAvailableQuantityError("Quantity is required!");
+		} else if (e.target.value < 2) {
+			setAvailableQuantityError("Quantity must be at least 2 units!");
+		} else setAvailableQuantityError("");
+	};
+
+	const { loading, data } = useQuery(GET_CATEGORIES);
 
 	const [createProduct] = useMutation(CREATE_PRODUCT);
 
 	const submitForm = (e) => {
 		e.preventDefault();
-	
-        createProduct({
+		createProduct({
 			variables: {
-				title: title.value,
-				description: description.value,
-				category: category.value,
-				price: price.value,
-				image: image.value,
-				availableQuantity: availableQuantity.value,
+				title: title,
+				description: description,
+				category: category,
+				price: price,
+				image: image,
+				availableQuantity: availableQuantity,
 			},
 		});
-
+		console.log(createProduct);
 		return navigate("/products");
 	};
 
 	if (loading) {
 		return <p>Loading</p>;
 	}
-
 	return (
 		<div className="px-8 sm:px-12 md:px-40">
 			<h1 className="text-lg mb-8">Add a product</h1>
-			<form className="flex flex-col space-y-8 w-60" onSubmit={submitForm}>
+			<form
+				className="flex flex-col space-y-8 w-60"
+				onSubmit={submitForm}
+			>
 				<div className="flex flex-col space-y-2">
 					<label htmlFor="title" className="">
 						Title:
 					</label>
 					<input
-						ref={(node) => (title = node)}
+						onChange={handleTitle}
 						className="rounded-sm p-2 ring-2 transition-all duration-200 ease-linear 
                             focus:ring-4 focus:outline-none focus:border-purple-300"
 						type="text"
 						id="title"
 						name="title"
 						placeholder="Title"
+						autoComplete="off"
 					/>
+					{titleError ? (
+						<p className="text-red-600">{titleError}</p>
+					) : (
+						""
+					)}
 				</div>
 				<div className="flex flex-col space-y-2">
 					<label htmlFor="description">Description:</label>
 					<textarea
-						ref={(node) => (description = node)}
+						onChange={handleDescription}
 						className="rounded-sm p-2 ring-2 transition-all duration-200 ease-linear 
                             focus:ring-4 focus:outline-none focus:border-purple-300"
 						id="description"
 						name="description"
 						placeholder="Description"
 					/>
+					{descriptionError ? (
+						<p className="text-red-600">{descriptionError}</p>
+					) : (
+						""
+					)}
 				</div>
 				<div className="flex flex-col space-y-2">
 					<label htmlFor="category">Category:</label>
 					<select
-						ref={(node) => (category = node)}
+						onChange={handleCategory}
 						className="rounded-sm p-2 ring-2 transition-all duration-200 ease-linear 
                             focus:ring-4 focus:outline-none focus:border-purple-300"
 						id="category"
@@ -125,46 +195,84 @@ const ProductForm = () => {
 							);
 						})}
 					</select>
+					{categoryError ? (
+						<p className="text-red-600">{categoryError}</p>
+					) : (
+						""
+					)}
 				</div>
 				<div className="flex flex-col space-y-2">
 					<label htmlFor="image">Product Image:</label>
 					<input
+						onChange={handleImage}
 						type="text"
-						ref={(node) => (image = node)}
 						id="image"
 						name="image"
 						defaultValue=""
 					/>
+					{imageError ? (
+						<p className="text-red-600">{imageError}</p>
+					) : (
+						""
+					)}
 				</div>
 				<div className="flex flex-col space-y-2">
 					<label htmlFor="price">Price:</label>
 					<input
+						onChange={handlePrice}
 						className="rounded-sm p-2 ring-2 transition-all duration-200 ease-linear 
                             focus:ring-4 focus:outline-none focus:border-purple-300"
 						type="number"
-						ref={(node) => (price = node)}
 						id="price"
 						name="price"
+						defaultValue={price}
 					/>
+					{priceError ? (
+						<p className="text-red-600">{priceError}</p>
+					) : (
+						""
+					)}
 				</div>
 				<div className="flex flex-col space-y-2">
 					<label htmlFor="quantity">Quantity:</label>
 					<input
-						ref={(node) => (availableQuantity = node)}
+						onChange={handleAvailableQuantity}
 						className="rounded-sm p-2 ring-2 transition-all duration-200 ease-linear 
                     focus:ring-4 focus:outline-none focus:border-purple-300"
 						type="number"
 						id="quantity"
 						name="quantity"
+						defaultValue={availableQuantity}
 					/>
+					{availableQuantityError ? (
+						<p className="text-red-600">{availableQuantityError}</p>
+					) : (
+						""
+					)}
 				</div>
-				<button
-					className="rounded-sm ring-2 text-xl p-2 bg-purple-500 text-white 
+				{titleError !== "" ||
+				descriptionError !== "" ||
+				priceError !== "" ||
+				imageError !== "" ||
+				categoryError !== "" ||
+				availableQuantityError !== "" ? (
+					<button
+						className="rounded-sm ring-2 text-xl p-2 bg-purple-500 text-white 
+                transition-all duration-100 ease-linear   ring-purple-300"
+						type="submit"
+						disabled="true"
+					>
+						Submit
+					</button>
+				) : (
+					<button
+						className="rounded-sm ring-2 text-xl p-2 bg-purple-500 text-white 
                 transition-all duration-100 ease-linear hover:bg-purple-600 hover:ring-4 ring-purple-300"
-					type="submit"
-				>
-					Submit
-				</button>
+						type="submit"
+					>
+						Submit
+					</button>
+				)}
 			</form>
 		</div>
 	);
