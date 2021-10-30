@@ -2,6 +2,7 @@ import { gql } from "apollo-boost";
 import { useMutation, useQuery } from "react-apollo";
 import { navigate } from "@reach/router";
 import React, { useState } from "react";
+import Navbar from "../components/Navbar";
 
 const GET_CATEGORIES = gql`
 	query {
@@ -132,6 +133,8 @@ const ProductForm = () => {
 		return <p>Loading</p>;
 	}
 	return (
+		<div>
+			<Navbar />
 		<div className="px-8 sm:px-12 md:px-40">
 			<h1 className="text-lg mb-8">Add a product</h1>
 			<form
@@ -274,6 +277,7 @@ const ProductForm = () => {
 					</button>
 				)}
 			</form>
+		</div>
 		</div>
 	);
 };

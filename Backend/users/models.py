@@ -8,3 +8,7 @@ class ExtendUser(AbstractUser):
 
     USERNAME_FIELD = "username"
     EMAIL_FIELD = "email"
+
+
+
+    
