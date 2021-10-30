@@ -1,8 +1,10 @@
 from django.db import models
-
+from django.contrib.auth.models import AbstractUser
 # Create your models here.
-class User(models.Model):
-    username = models.CharField(blank=False,max_length=255)
-    email = models.EmailField(blank=False,max_length=255)
-    password = models.CharField(blank=False,max_length=255)
-    
+
+
+class ExtendUser(AbstractUser):
+    email = models.EmailField(blank=False,max_length=255,verbose_name="email")
+
+    USERNAME_FIELD = "username"
+    EMAIL_FIELD = "email"

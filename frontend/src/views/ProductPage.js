@@ -10,8 +10,10 @@ const QUERY_PRODUCTS = gql`
 		$max: Float!
 		$orderBy: String!
 		$category: Int
+		$first: Int!
+		$skip: Int!
 	) {
-		products(search: $search, min: $min, max: $max, orderBy: $orderBy, category: $category) {
+		products(search: $search, min: $min, max: $max, orderBy: $orderBy, category: $category, first: $first, skip:$skip) {
 			id
 			title
 			description
@@ -42,6 +44,11 @@ let searchForm = {
 	max: 99999999999999,
 	orderBy: "",
 };
+
+let pagination = {
+	first: 8,
+	skip: 0
+}
 console.log(searchForm);
 const ProductPage = () => {
 	let [queryProducts, { called, data, loading }] = useLazyQuery(
@@ -52,12 +59,28 @@ const ProductPage = () => {
 				min: searchForm.min,
 				max: searchForm.max,
 				orderBy: searchForm.orderBy,
-				category: searchForm.category
+				category: searchForm.category,
+				first: pagination.first,
+				skip: pagination.skip
 			},
 		}
 	);
 
 	if (!called) {
+		queryProducts();
+	}
+
+	const updateQuery = () => {
+		pagination.skip = pagination.first;
+		pagination.first += pagination.first;
+		console.log(pagination.first);
+		console.log(pagination.skip);
+		queryProducts();
+	}
+
+	const previousQuery = () => {
+		pagination.first -= pagination.skip;
+		pagination.skip -= pagination.skip;
 		queryProducts();
 	}
 
@@ -169,6 +192,12 @@ const ProductPage = () => {
 						<Product key={product.id} product={product} />
 					))}
 			</div>
+			<button className="rounded-sm ring-2 p-2 bg-purple-500 text-white 
+                			transition-all duration-100 ease-linear hover:bg-purple-600 hover:ring-4 ring-purple-300"
+							onClick={previousQuery}>Prev</button>
+			<button className="rounded-sm ring-2 p-2 bg-purple-500 text-white 
+                			transition-all duration-100 ease-linear hover:bg-purple-600 hover:ring-4 ring-purple-300"
+							onClick={updateQuery}>Next</button>
 		</div>
 	);
 };

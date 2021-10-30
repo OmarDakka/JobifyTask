@@ -1,8 +1,7 @@
 import graphene
-from graphene_django import DjangoObjectType, fields
+from graphene_django import DjangoObjectType
 from .models import Product, Category
 from django.db.models import Q
-
 
 class CategoryType(DjangoObjectType):
     class Meta:
@@ -30,9 +29,11 @@ class Query(graphene.ObjectType):
     categories = graphene.List(
         CategoryType, id=graphene.Int(), title=graphene.String())
     products = graphene.List(ProductType, id=graphene.Int(), search=graphene.String(
-    ),  min=graphene.Float(),  max=graphene.Float(), orderBy=graphene.String(), category=graphene.Int())
+    ),  min=graphene.Float(),  max=graphene.Float(), orderBy=graphene.String(), category=graphene.Int(),first = graphene.Int(), skip = graphene.Int())
 
-    def resolve_products(root, info, **kwargs):
+
+
+    def resolve_products(root, info, first = None, skip = None ,**kwargs ):
         id = kwargs.get('id')
 
         if id is not None:
@@ -71,6 +72,12 @@ class Query(graphene.ObjectType):
                 pass
             else :
                 query = query.filter(category = category)
+        
+        if skip:
+            query = query[skip:]
+        
+        if first:
+            query = query[:first]
             
         return query
 
