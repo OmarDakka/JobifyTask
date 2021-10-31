@@ -2,6 +2,7 @@ import React from "react";
 import { useState } from "react";
 import { useMutation } from "react-apollo";
 import { gql } from "apollo-boost";
+import { navigate } from "@reach/router";
 
 const CREATE_USER = gql`
 	mutation register(
@@ -71,21 +72,34 @@ export const Register = () => {
 		} else setConfirmPasswordError("");
 	};
 
-	const [createUser, {data,loading,error}] = useMutation(CREATE_USER);
-    if (loading) return 'Submitting...';
-    if (error) {console.log(error.message)};
-    console.log(data);
+	const [createUser, { loading, error }] = useMutation(CREATE_USER);
 
-	const submitForm = (e) => {
+	if (loading) return "Submitting...";
+
+	if (error) {
+		console.log(error.message);
+	}
+
+	const submitForm = async (e) => {
 		e.preventDefault();
-		createUser({
-			variables: {
-				username: username,
-				email: email,
-				password1: password,
-				password2: confirmPassword,
-			},
-		});
+
+		try {
+			let { data } = await createUser({
+				variables: {
+					username: username,
+					email: email,
+					password1: password,
+					password2: confirmPassword,
+				},
+			});
+
+			if (data && data.register && data.register.token) {
+				localStorage.setItem("token", data.register.token);
+				navigate("/products");
+			}
+		} catch (error) {
+			console.log({ error });
+		}
 	};
 	return (
 		<div>

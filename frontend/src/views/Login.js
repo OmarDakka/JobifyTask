@@ -1,6 +1,6 @@
 import React from "react";
 import { useState } from "react";
-import { useMutation, useQuery, useLazyQuery } from "react-apollo";
+import { useMutation} from "react-apollo";
 import { gql } from "apollo-boost";
 import { navigate } from "@reach/router";
 
@@ -55,7 +55,7 @@ const Login = () => {
 			let token = result.data.tokenAuth.token;
 
 			localStorage.setItem("token", token);
-			
+
 			navigate("/products");
 		} catch (error) {
 			console.log({ error });

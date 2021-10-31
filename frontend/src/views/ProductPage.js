@@ -199,20 +199,23 @@ const ProductPage = () => {
 							<Product key={product.id} product={product} />
 						))}
 				</div>
-				<button
-					className="rounded-sm ring-2 p-2 bg-purple-500 text-white 
+
+				<div className="flex justify-around mt-8">
+					<button
+						className="rounded-sm ring-2 p-2 bg-purple-500 text-white 
                 			transition-all duration-100 ease-linear hover:bg-purple-600 hover:ring-4 ring-purple-300"
-					onClick={previousQuery}
-				>
-					Prev
-				</button>
-				<button
-					className="rounded-sm ring-2 p-2 bg-purple-500 text-white 
+						onClick={previousQuery}
+					>
+						Prev
+					</button>
+					<button
+						className="rounded-sm ring-2 p-2 bg-purple-500 text-white 
                 			transition-all duration-100 ease-linear hover:bg-purple-600 hover:ring-4 ring-purple-300"
-					onClick={updateQuery}
-				>
-					Next
-				</button>
+						onClick={updateQuery}
+					>
+						Next
+					</button>
+				</div>
 			</div>
 		</div>
 	);
