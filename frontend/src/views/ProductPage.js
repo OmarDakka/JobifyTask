@@ -3,6 +3,7 @@ import { gql } from "apollo-boost";
 import { useQuery, useLazyQuery } from "react-apollo";
 import Product from "../components/product";
 import Navbar from "../components/Navbar";
+
 const QUERY_PRODUCTS = gql`
 	query products(
 		$search: String!
@@ -57,7 +58,7 @@ let pagination = {
 	first: 8,
 	skip: 0,
 };
-console.log(searchForm);
+
 const ProductPage = () => {
 	let [queryProducts, { called, data, loading }] = useLazyQuery(
 		QUERY_PRODUCTS,
@@ -81,8 +82,6 @@ const ProductPage = () => {
 	const updateQuery = () => {
 		pagination.skip = pagination.first;
 		pagination.first += pagination.first;
-		console.log(pagination.first);
-		console.log(pagination.skip);
 		queryProducts();
 	};
 
@@ -125,7 +124,7 @@ const ProductPage = () => {
 						<select
 							ref={(node) => (searchForm.category = node?.value)}
 							className="rounded-sm p-2 ring-2 transition-all duration-200 ease-linear 
-						focus:ring-4 focus:outline-none focus:border-purple-300"
+								focus:ring-4 focus:outline-none focus:border-purple-300"
 							id="category"
 							name="category"
 							defaultValue={searchForm.category}

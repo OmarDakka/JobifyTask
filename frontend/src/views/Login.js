@@ -1,19 +1,23 @@
 import React from "react";
 import { useState } from "react";
-import { useMutation } from "react-apollo";
+import { useMutation, useQuery, useLazyQuery } from "react-apollo";
 import { gql } from "apollo-boost";
 import { navigate } from "@reach/router";
 
 const LOGIN = gql`
 	mutation tokenAuth($username: String!, $password: String!) {
 		tokenAuth(username: $username, password: $password) {
-			success
 			token
 			refreshToken
-			user {
-				id
-				username
-			}
+		}
+	}
+`;
+
+const USER_INFO = gql`
+	query {
+		me {
+			username
+			id
 		}
 	}
 `;
@@ -31,24 +35,33 @@ const Login = () => {
 		setPassword(e.target.value);
 	};
 
-	const [login, { data, loading, error }] = useMutation(LOGIN);
-	if (loading) return "Submitting...";
+	const [login, { error }] = useMutation(LOGIN);
+
 	if (error) {
 		setLoginError(error.message);
 	}
 
-	const loginForm = (e) => {
-		e.preventDefault();
-		login({
-			variables: {
-				username: username,
-				password: password,
-			},
-		});
-		console.log(data);
-        console.log(loginError);
-		return navigate("/products");
+
+	const loginForm = async (e) => {
+		try {
+			e.preventDefault();
+
+			let result = await login({
+				variables: {
+					username: username,
+					password: password,
+				},
+			});
+
+			let token = result.data.tokenAuth.token;
+
+			localStorage.setItem("token", token);
+			navigate("/products");
+		} catch (error) {
+			console.log({ error });
+		}
 	};
+
 	return (
 		<div>
 			<div className="px-8 sm:px-12 md:px-40">

@@ -1,5 +1,6 @@
 import graphene
 from graphene_django import DjangoObjectType
+from users.models import ExtendUser
 from .models import Product, Category
 from django.db.models import Q
 
@@ -133,7 +134,7 @@ class ProductInput(graphene.InputObjectType):
     price = graphene.Float()
     image = graphene.String()
     available_quantity = graphene.Int()
-
+    user_id = graphene.String()
 
 class CreateProduct(graphene.Mutation):
     class Arguments:
@@ -148,6 +149,7 @@ class CreateProduct(graphene.Mutation):
         product.description = input.description
         product.price = input.price
         product.image = input.image
+        product.uploaded_by = ExtendUser.objects.get(username=input.user_id) 
         product.available_quantity = input.available_quantity
         product.save()
         product.category.set(Category.objects.filter(pk=input.category))

@@ -10,6 +10,10 @@ const GET_CATEGORIES = gql`
 			id
 			title
 		}
+		me {
+			username
+			id
+		}
 	}
 `;
 
@@ -21,6 +25,7 @@ const CREATE_PRODUCT = gql`
 		$price: Float!
 		$image: String!
 		$availableQuantity: Int!
+		$userId: String!
 	) {
 		createProduct(
 			input: {
@@ -30,6 +35,7 @@ const CREATE_PRODUCT = gql`
 				price: $price
 				image: $image
 				availableQuantity: $availableQuantity
+				userId: $userId
 			}
 		) {
 			product {
@@ -111,21 +117,31 @@ const ProductForm = () => {
 
 	const { loading, data } = useQuery(GET_CATEGORIES);
 
+	let userId = "";
+
+	if (data && data.me.username) {
+		userId = data.me.username;
+	}
+
 	const [createProduct] = useMutation(CREATE_PRODUCT);
 
-	const submitForm = (e) => {
+	const submitForm = async (e) => {
 		e.preventDefault();
-		createProduct({
-			variables: {
-				title: title,
-				description: description,
-				category: category,
-				price: price,
-				image: image,
-				availableQuantity: availableQuantity,
-			},
-		});
-		console.log(createProduct);
+		
+		let variables = {
+			title: title,
+			description: description,
+			category: category,
+			price: price,
+			image: image,
+			availableQuantity: availableQuantity,
+			userId: userId,
+		};
+
+
+		await createProduct({ variables });
+
+
 		return navigate("/products");
 	};
 
@@ -135,149 +151,151 @@ const ProductForm = () => {
 	return (
 		<div>
 			<Navbar />
-		<div className="px-8 sm:px-12 md:px-40">
-			<h1 className="text-lg mb-8">Add a product</h1>
-			<form
-				className="flex flex-col space-y-8 w-60"
-				onSubmit={submitForm}
-			>
-				<div className="flex flex-col space-y-2">
-					<label htmlFor="title" className="">
-						Title:
-					</label>
-					<input
-						onChange={handleTitle}
-						className="rounded-sm p-2 ring-2 transition-all duration-200 ease-linear 
+			<div className="px-8 sm:px-12 md:px-40">
+				<h1 className="text-lg mb-8">Add a product</h1>
+				<form
+					className="flex flex-col space-y-8 w-60"
+					onSubmit={submitForm}
+				>
+					<div className="flex flex-col space-y-2">
+						<label htmlFor="title" className="">
+							Title:
+						</label>
+						<input
+							onChange={handleTitle}
+							className="rounded-sm p-2 ring-2 transition-all duration-200 ease-linear 
                             focus:ring-4 focus:outline-none focus:border-purple-300"
-						type="text"
-						id="title"
-						name="title"
-						placeholder="Title"
-						autoComplete="off"
-					/>
-					{titleError ? (
-						<p className="text-red-600">{titleError}</p>
-					) : (
-						""
-					)}
-				</div>
-				<div className="flex flex-col space-y-2">
-					<label htmlFor="description">Description:</label>
-					<textarea
-						onChange={handleDescription}
-						className="rounded-sm p-2 ring-2 transition-all duration-200 ease-linear 
+							type="text"
+							id="title"
+							name="title"
+							placeholder="Title"
+							autoComplete="off"
+						/>
+						{titleError ? (
+							<p className="text-red-600">{titleError}</p>
+						) : (
+							""
+						)}
+					</div>
+					<div className="flex flex-col space-y-2">
+						<label htmlFor="description">Description:</label>
+						<textarea
+							onChange={handleDescription}
+							className="rounded-sm p-2 ring-2 transition-all duration-200 ease-linear 
                             focus:ring-4 focus:outline-none focus:border-purple-300"
-						id="description"
-						name="description"
-						placeholder="Description"
-					/>
-					{descriptionError ? (
-						<p className="text-red-600">{descriptionError}</p>
-					) : (
-						""
-					)}
-				</div>
-				<div className="flex flex-col space-y-2">
-					<label htmlFor="category">Category:</label>
-					<select
-						onChange={handleCategory}
-						className="rounded-sm p-2 ring-2 transition-all duration-200 ease-linear 
+							id="description"
+							name="description"
+							placeholder="Description"
+						/>
+						{descriptionError ? (
+							<p className="text-red-600">{descriptionError}</p>
+						) : (
+							""
+						)}
+					</div>
+					<div className="flex flex-col space-y-2">
+						<label htmlFor="category">Category:</label>
+						<select
+							onChange={handleCategory}
+							className="rounded-sm p-2 ring-2 transition-all duration-200 ease-linear 
                             focus:ring-4 focus:outline-none focus:border-purple-300"
-						id="category"
-						name="category"
-						defaultValue=""
-					>
-						<option disabled value="">
-							Category
-						</option>
-						{data.categories.map((c) => {
-							return (
-								<option key={c.id} value={c.id}>
-									{c.title}
-								</option>
-							);
-						})}
-					</select>
-					{categoryError ? (
-						<p className="text-red-600">{categoryError}</p>
-					) : (
-						""
-					)}
-				</div>
-				<div className="flex flex-col space-y-2">
-					<label htmlFor="image">Product Image:</label>
-					<input
-						onChange={handleImage}
-						type="text"
-						id="image"
-						name="image"
-						defaultValue=""
-					/>
-					{imageError ? (
-						<p className="text-red-600">{imageError}</p>
-					) : (
-						""
-					)}
-				</div>
-				<div className="flex flex-col space-y-2">
-					<label htmlFor="price">Price:</label>
-					<input
-						onChange={handlePrice}
-						className="rounded-sm p-2 ring-2 transition-all duration-200 ease-linear 
+							id="category"
+							name="category"
+							defaultValue=""
+						>
+							<option disabled value="">
+								Category
+							</option>
+							{data.categories.map((c) => {
+								return (
+									<option key={c.id} value={c.id}>
+										{c.title}
+									</option>
+								);
+							})}
+						</select>
+						{categoryError ? (
+							<p className="text-red-600">{categoryError}</p>
+						) : (
+							""
+						)}
+					</div>
+					<div className="flex flex-col space-y-2">
+						<label htmlFor="image">Product Image:</label>
+						<input
+							onChange={handleImage}
+							type="text"
+							id="image"
+							name="image"
+							defaultValue=""
+						/>
+						{imageError ? (
+							<p className="text-red-600">{imageError}</p>
+						) : (
+							""
+						)}
+					</div>
+					<div className="flex flex-col space-y-2">
+						<label htmlFor="price">Price:</label>
+						<input
+							onChange={handlePrice}
+							className="rounded-sm p-2 ring-2 transition-all duration-200 ease-linear 
                             focus:ring-4 focus:outline-none focus:border-purple-300"
-						type="number"
-						id="price"
-						name="price"
-						defaultValue={price}
-					/>
-					{priceError ? (
-						<p className="text-red-600">{priceError}</p>
-					) : (
-						""
-					)}
-				</div>
-				<div className="flex flex-col space-y-2">
-					<label htmlFor="quantity">Quantity:</label>
-					<input
-						onChange={handleAvailableQuantity}
-						className="rounded-sm p-2 ring-2 transition-all duration-200 ease-linear 
+							type="number"
+							id="price"
+							name="price"
+							defaultValue={price}
+						/>
+						{priceError ? (
+							<p className="text-red-600">{priceError}</p>
+						) : (
+							""
+						)}
+					</div>
+					<div className="flex flex-col space-y-2">
+						<label htmlFor="quantity">Quantity:</label>
+						<input
+							onChange={handleAvailableQuantity}
+							className="rounded-sm p-2 ring-2 transition-all duration-200 ease-linear 
                     focus:ring-4 focus:outline-none focus:border-purple-300"
-						type="number"
-						id="quantity"
-						name="quantity"
-						defaultValue={availableQuantity}
-					/>
-					{availableQuantityError ? (
-						<p className="text-red-600">{availableQuantityError}</p>
-					) : (
-						""
-					)}
-				</div>
-				{titleError !== "" ||
-				descriptionError !== "" ||
-				priceError !== "" ||
-				imageError !== "" ||
-				categoryError !== "" ||
-				availableQuantityError !== "" ? (
-					<button
-						className="rounded-sm ring-2 text-xl p-2 bg-purple-500 text-white 
+							type="number"
+							id="quantity"
+							name="quantity"
+							defaultValue={availableQuantity}
+						/>
+						{availableQuantityError ? (
+							<p className="text-red-600">
+								{availableQuantityError}
+							</p>
+						) : (
+							""
+						)}
+					</div>
+					{titleError !== "" ||
+					descriptionError !== "" ||
+					priceError !== "" ||
+					imageError !== "" ||
+					categoryError !== "" ||
+					availableQuantityError !== "" ? (
+						<button
+							className="rounded-sm ring-2 text-xl p-2 bg-purple-500 text-white 
                 transition-all duration-100 ease-linear   ring-purple-300"
-						type="submit"
-						disabled="true"
-					>
-						Submit
-					</button>
-				) : (
-					<button
-						className="rounded-sm ring-2 text-xl p-2 bg-purple-500 text-white 
+							type="submit"
+							disabled="true"
+						>
+							Submit
+						</button>
+					) : (
+						<button
+							className="rounded-sm ring-2 text-xl p-2 bg-purple-500 text-white 
                 transition-all duration-100 ease-linear hover:bg-purple-600 hover:ring-4 ring-purple-300"
-						type="submit"
-					>
-						Submit
-					</button>
-				)}
-			</form>
-		</div>
+							type="submit"
+						>
+							Submit
+						</button>
+					)}
+				</form>
+			</div>
 		</div>
 	);
 };

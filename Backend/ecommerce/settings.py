@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 import os
 from pathlib import Path
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -150,7 +151,7 @@ GRAPHENE = {
 }
 
 AUTHENTICATION_BACKENDS = [
-    'graphql_auth.backends.GraphQLAuthBackend',
+    "graphql_jwt.backends.JSONWebTokenBackend",
     'django.contrib.auth.backends.ModelBackend',
 ]
 
@@ -162,6 +163,7 @@ GRAPHQL_JWT = {
     ],
     "JWT_VERIFY_EXPIRATION" : True,
     "JWT_LONG_RUNNING_REFRESH_TOKEN": True,
+    "JWT_EXPIRATION_DELTA": timedelta(minutes=90),
 }
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
