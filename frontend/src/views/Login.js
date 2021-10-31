@@ -41,7 +41,6 @@ const Login = () => {
 		setLoginError(error.message);
 	}
 
-
 	const loginForm = async (e) => {
 		try {
 			e.preventDefault();
@@ -56,6 +55,7 @@ const Login = () => {
 			let token = result.data.tokenAuth.token;
 
 			localStorage.setItem("token", token);
+			
 			navigate("/products");
 		} catch (error) {
 			console.log({ error });

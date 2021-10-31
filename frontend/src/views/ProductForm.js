@@ -55,6 +55,19 @@ const CREATE_PRODUCT = gql`
 `;
 
 const ProductForm = () => {
+	const token = localStorage.getItem("token");
+
+	if (!token) {
+		navigate("/login");
+	}
+
+	const isTokenExpired = (token) =>
+		Date.now() >= JSON.parse(atob(token.split(".")[1])).exp * 1000;
+
+	if (isTokenExpired(token)) {
+		navigate("/login");
+	}
+
 	const [title, setTitle] = useState("");
 	const [description, setDescription] = useState("");
 	const [price, setPrice] = useState(0);
@@ -119,7 +132,7 @@ const ProductForm = () => {
 
 	let userId = "";
 
-	if (data && data.me.username) {
+	if (data && data.me && data.me.username) {
 		userId = data.me.username;
 	}
 
@@ -127,7 +140,7 @@ const ProductForm = () => {
 
 	const submitForm = async (e) => {
 		e.preventDefault();
-		
+
 		let variables = {
 			title: title,
 			description: description,
@@ -138,9 +151,7 @@ const ProductForm = () => {
 			userId: userId,
 		};
 
-
 		await createProduct({ variables });
-
 
 		return navigate("/products");
 	};
