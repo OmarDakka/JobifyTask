@@ -8,6 +8,7 @@ import { useState } from "react";
 import Navbar from "./components/Navbar";
 import { Register } from "./views/Register";
 import Login from "./views/Login";
+import ProductView from "./views/ProductView";
 
 
 
@@ -23,6 +24,7 @@ function App() {
 						<Login path="/login"/>
 						<Register path="/register" />
 						<ProductPage path="/products" />
+						<ProductView path="/product/:id"/>
 						<ProductForm path="/create"/>
 					</Router>
 				</div>
