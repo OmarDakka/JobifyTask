@@ -72,7 +72,7 @@ const ProductForm = () => {
 	const [description, setDescription] = useState("");
 	const [price, setPrice] = useState(0);
 	const [availableQuantity, setAvailableQuantity] = useState(0);
-	const [image, setImage] = useState("");
+	const [image, setImage] = useState();
 	const [category, setCategory] = useState(0);
 	const [titleError, setTitleError] = useState("");
 	const [descriptionError, setDescriptionError] = useState("");
@@ -114,10 +114,7 @@ const ProductForm = () => {
 		} else setCategoryError("");
 	};
 	const handleImage = (e) => {
-		setImage(e.target.value);
-		if (e.target.value.length < 1) {
-			setImageError("Image is required!");
-		} else setImageError("");
+		setImage(e.target.files[0]);
 	};
 	const handleAvailableQuantity = (e) => {
 		setAvailableQuantity(e.target.value);
@@ -141,19 +138,33 @@ const ProductForm = () => {
 	const submitForm = async (e) => {
 		e.preventDefault();
 
-		let variables = {
-			title: title,
-			description: description,
-			category: category,
-			price: price,
-			image: image,
-			availableQuantity: availableQuantity,
-			userId: userId,
+		const reader = new FileReader();
+
+		reader.onloadend = async () => {
+			// use a regex to remove data url part
+			const base64String = reader.result
+				.replace("data:", "")
+				.replace(/^.+,/, "");
+
+			// log to console
+			// logs wL2dvYWwgbW9yZ...
+			
+			let variables = {
+				title: title,
+				description: description,
+				category: category,
+				price: price,
+				image: base64String,
+				availableQuantity: availableQuantity,
+				userId: userId,
+			};
+
+			await createProduct({ variables });
+
+			navigate("/products");
 		};
 
-		await createProduct({ variables });
-
-		return navigate("/products");
+		reader.readAsDataURL(image);
 	};
 
 	if (loading) {
@@ -235,7 +246,7 @@ const ProductForm = () => {
 						<label htmlFor="image">Product Image:</label>
 						<input
 							onChange={handleImage}
-							type="text"
+							type="file"
 							id="image"
 							name="image"
 							defaultValue=""
